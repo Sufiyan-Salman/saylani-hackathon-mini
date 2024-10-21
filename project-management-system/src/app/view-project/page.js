@@ -1,0 +1,25 @@
+"use client"
+import { useRouter } from "next/navigation";
+export default function ViewProject() {
+  const router = useRouter();
+
+  return (
+    <div className="flex justify-center items-center text-black h-screen bg-gray-100">
+      <div className="p-6 bg-white rounded shadow-md text-center">
+        <h2 className="text-2xl mb-6">View Projects</h2>
+        <button
+          className="bg-blue-500 text-white py-2 px-4 rounded w-full mb-4"
+          onClick={() => router.push('/owner-projects')}
+        >
+          View Owned Projects
+        </button>
+        <button
+          className="bg-green-500 text-white py-2 px-4 rounded w-full"
+          onClick={() => router.push('/member-projects')}
+        >
+          View Member Projects
+        </button>
+      </div>
+    </div>
+  );
+}
