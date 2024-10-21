@@ -1,0 +1,139 @@
+
+Requirments
+
+- Create Login / Signup page
+- After Signup, move the user to login page
+- After login, move the user to the page where user would be able to choose wether he has to view projects or create
+  - After clicking on view projects, user will have to choose between member projects or owner projects
+  - After clicking on create project, he will see a form in which he will add the details and will get a dropdown to add members (drop down will consist of users who have already signed up)
+-In case of member in a project, user can give answer to the questions asked to him and can ask question to the owner as well.
+-In case of owner in a project, user can ask ques to members and answer their queries as well.
+
+
+Technical Approach:
+- User data will be saved in firebase db (users collection)
+- A group/project collection will also be added which will contain the information related to the group i.e. the owner, members in it, created at, created by etc
+- 
+-Based on your description, here’s a possible database schema design along with explanations for each table and field:
+
+1. Groups Table
+
+This table stores information about each group.
+
+CREATE TABLE Groups (
+    group_id INT PRIMARY KEY AUTO_INCREMENT,
+    group_name VARCHAR(255) NOT NULL,
+    owner_id INT NOT NULL, -- Foreign Key to Users table
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+Reasoning: We need to store the basic information of each group and link it to the group owner. The owner_id refers to the Users table (explained below).
+
+
+2. Users Table
+
+This table holds information about the users (both group owners and members).
+
+CREATE TABLE Users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+Reasoning: Every group owner and member is a user. This table holds the credentials and information of the users.
+
+
+3. Group_Members Table
+
+This table keeps track of which users are part of which groups.
+
+CREATE TABLE Group_Members (
+    group_id INT,
+    user_id INT,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (group_id, user_id),
+    FOREIGN KEY (group_id) REFERENCES Groups(group_id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+Reasoning: Since a user can belong to multiple groups and a group can have multiple members, a many-to-many relationship is established here.
+
+
+4. Agendas Table
+
+This table contains information about the chat agendas.
+
+CREATE TABLE Agendas (
+    agenda_id INT PRIMARY KEY AUTO_INCREMENT,
+    agenda_title VARCHAR(255) NOT NULL,
+    created_by INT NOT NULL, -- Foreign Key to Users table
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES Users(user_id)
+);
+
+Reasoning: Every chat is based on an agenda, and this table stores agenda details along with the user who created it.
+
+
+5. Chats Table
+
+This table represents the conversations between a group owner and a member, or between two members, based on different agendas.
+
+CREATE TABLE Chats (
+    chat_id INT PRIMARY KEY AUTO_INCREMENT,
+    group_id INT NOT NULL,
+    agenda_id INT NOT NULL,
+    owner_id INT NOT NULL, -- Foreign Key to Users table
+    member_id INT NOT NULL, -- Foreign Key to Users table
+    chat_status ENUM('To Do', 'In Progress', 'Ended') DEFAULT 'To Do',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (group_id) REFERENCES Groups(group_id),
+    FOREIGN KEY (agenda_id) REFERENCES Agendas(agenda_id),
+    FOREIGN KEY (owner_id) REFERENCES Users(user_id),
+    FOREIGN KEY (member_id) REFERENCES Users(user_id)
+);
+
+Reasoning: This table tracks each conversation, linked to a specific group, agenda, owner, and member. The status of the chat is stored using an ENUM to manage the stages of the conversation.
+
+
+6. Messages Table
+
+This table stores the actual messages exchanged in each chat.
+
+CREATE TABLE Messages (
+    message_id INT PRIMARY KEY AUTO_INCREMENT,
+    chat_id INT NOT NULL,
+    sender_id INT NOT NULL, -- Foreign Key to Users table
+    message_content TEXT NOT NULL,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (chat_id) REFERENCES Chats(chat_id),
+    FOREIGN KEY (sender_id) REFERENCES Users(user_id)
+);
+
+Reasoning: Every message is part of a specific chat, and the sender must be linked to the Users table. Messages are stored as text.
+
+
+Relationships and Use Case Flow
+
+1. Groups: Each group has an owner, and the members of the group are tracked in the Group_Members table.
+
+
+2. Agendas: Every chat must have an agenda, stored in the Agendas table. This allows you to have multiple chats with the same member based on different agendas.
+
+
+3. Chats: The owner (or member in the future) can initiate chats with members based on an agenda. The status of the chat is tracked with To Do, In Progress, and Ended.
+
+
+4. Messages: Within a chat, multiple messages are exchanged, tracked with a sender and a timestamp.
+
+
+
+Possible Enhancements:
+
+Notifications: You could add a table to track unread messages and notifications for chats.
+
+Permissions: In the future, you may want to add permissions and roles to manage who can initiate chats and ask questions.
+
+
+This design ensures scalability as the number of users, groups, and chats grows, with proper normalization to avoid redundancy.
