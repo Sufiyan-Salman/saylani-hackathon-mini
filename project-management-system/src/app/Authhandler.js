@@ -8,7 +8,7 @@ export default function Authhandler({ children }) {
 console.log(pathname)
   useEffect(() => {
       const token = localStorage.getItem('tokenid');
-      if (!token && (pathname !== '/' || pathname!=='/login')) {
+      if (!token && pathname !== '/' && pathname !== '/login') {
         router.push('/');
       }
       else if (token && (pathname === '/' || pathname==='/login')){
