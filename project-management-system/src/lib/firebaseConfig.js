@@ -6,12 +6,12 @@ import { getFirestore, addDoc, collection, getDocs, query, where } from "firebas
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyDrbC_btIH2rojZI5nI_2ZTDHbQGcTt7Go",
-    authDomain: "saylani-hackathon-mini.firebaseapp.com",
-    projectId: "saylani-hackathon-mini",
-    storageBucket: "saylani-hackathon-mini.appspot.com",
-    messagingSenderId: "815278661437",
-    appId: "1:815278661437:web:346ceb348d6916e19a6f54"
+    apiKey: API_KEY,
+    authDomain: AUTH_DOMAIN,
+    projectId: PROJECT_ID,
+    storageBucket: STORAGE_BUCKET,
+    messagingSenderId: MESSAGING_SENDER_ID,
+    appId: APP_ID
   };
 
 
